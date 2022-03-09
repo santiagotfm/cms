@@ -8,7 +8,7 @@ import { MessageService } from '../message.service';
   styleUrls: ['./message-edit.component.css']
 })
 export class MessageEditComponent implements OnInit {
-  currentSender = 'Santiago';
+  currentSender = '1';
   @ViewChild('subject', { static: false }) subjectRef: ElementRef;
   @ViewChild('message', { static: false }) messageRef: ElementRef;
 
