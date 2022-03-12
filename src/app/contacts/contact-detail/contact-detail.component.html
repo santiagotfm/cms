@@ -7,11 +7,11 @@
       </div>
       <div class="col-md-6">
         <span class="pull-right">
-          <button class="btn btn-primary btn-sm">Edit</button>
-          <button class="btn btn-danger btn-sm">Delete</button>
+          <button [routerLink]="'edit'" class="btn btn-primary btn-sm">Edit</button>
+          <button (click)="onDelete()" class="btn btn-danger btn-sm">Delete</button>
         </span>
       </div>
-    </div>
+    </div> 
   </div>
   <div class="panel-body">
     <div class="col-xs-12">

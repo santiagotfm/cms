@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Params } from '@angular/router';
 import { Document } from '../document.model';
 
 @Component({
