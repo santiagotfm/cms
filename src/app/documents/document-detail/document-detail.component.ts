@@ -22,16 +22,16 @@ export class DocumentDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.params
-    .subscribe(
-      (params: Params) => {
-        this.id = params['id'];
-        this.document = this.documentService.getDocument(this.id);
-      }
-    );
+      .subscribe(
+        (params: Params) => {
+          this.id = params['id'];
+          this.document = this.documentService.getDocument(this.id);
+        }
+      );
     this.nativeWindow = this.windowRefService.getNativeWindow();
   }
 
-  onView(){
+  onView() {
     if (this.document.url) {
       this.nativeWindow.open(this.document.url);
     }
@@ -40,6 +40,6 @@ export class DocumentDetailComponent implements OnInit {
   onDelete() {
     this.documentService.deleteDocument(this.document);
     this.router.navigateByUrl('/documents');
- }
+  }
 
 }
