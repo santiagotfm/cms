@@ -1,17 +1,52 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Message } from './message.model';
-import { MOCKMESSAGES } from './MOCKMESSAGES';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MessageService {
-
   private messages: Message[] = [];
   messageChangedEvent = new EventEmitter<Message[]>();
+  maxMessageId: number;
 
-  constructor() { 
-    this.messages = MOCKMESSAGES;
+  constructor(private http: HttpClient) { 
+    this.getMessageshttp();
+  }
+
+  getMessageshttp(): void {
+    this.http
+      .get<Message[]>(
+        'https://cmssantiago-2e759-default-rtdb.firebaseio.com/messages.json'
+      )
+      .subscribe(
+        (messages: Message[] ) => {
+           this.messages = messages;
+           this.maxMessageId = this.getMaxId();
+           const messagesList = this.messages.slice();
+           this.messageChangedEvent.next(messagesList);
+        },
+       
+        (error: any) => {
+           console.log(error);
+        } 
+      )
+  }
+
+  storeMessages() {
+    this.messages = JSON.parse(JSON.stringify(this.messages));
+    this.http
+      .put(
+        'https://cmssantiago-2e759-default-rtdb.firebaseio.com/messages.json',
+        this.messages, 
+        {
+          headers: new HttpHeaders().set('Content-Type', 'application/json')
+        }
+      )
+      .subscribe(response => {
+        const messagesList = this.messages.slice();
+        this.messageChangedEvent.next(messagesList);
+      });
   }
 
   getMessages(): Message[] {
@@ -29,6 +64,17 @@ export class MessageService {
 
   addMessage(message: Message) {
     this.messages.push(message);
-    this.messageChangedEvent.emit(this.messages.slice());
+    this.storeMessages();
+  }
+
+  getMaxId(): number {
+    let maxId = 0
+    for (let message of this.messages) {
+      let currentId = parseInt(message.id);
+      if (currentId > maxId) {
+        maxId = currentId
+      }
+    }
+    return maxId
   }
 }
