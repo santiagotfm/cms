@@ -10,43 +10,27 @@ export class MessageService {
   messageChangedEvent = new EventEmitter<Message[]>();
   maxMessageId: number;
 
-  constructor(private http: HttpClient) { 
+  constructor(private http: HttpClient) {
     this.getMessageshttp();
   }
 
   getMessageshttp(): void {
     this.http
       .get<Message[]>(
-        'https://cmssantiago-2e759-default-rtdb.firebaseio.com/messages.json'
+        'http://localhost:3000/messages'
       )
       .subscribe(
-        (messages: Message[] ) => {
-           this.messages = messages;
-           this.maxMessageId = this.getMaxId();
-           const messagesList = this.messages.slice();
-           this.messageChangedEvent.next(messagesList);
+        (messages: Message[]) => {
+          this.messages = messages;
+          this.maxMessageId = this.getMaxId();
+          const messagesList = this.messages.slice();
+          this.messageChangedEvent.next(messagesList);
         },
-       
-        (error: any) => {
-           console.log(error);
-        } 
-      )
-  }
 
-  storeMessages() {
-    this.messages = JSON.parse(JSON.stringify(this.messages));
-    this.http
-      .put(
-        'https://cmssantiago-2e759-default-rtdb.firebaseio.com/messages.json',
-        this.messages, 
-        {
-          headers: new HttpHeaders().set('Content-Type', 'application/json')
+        (error: any) => {
+          console.log(error);
         }
       )
-      .subscribe(response => {
-        const messagesList = this.messages.slice();
-        this.messageChangedEvent.next(messagesList);
-      });
   }
 
   getMessages(): Message[] {
@@ -63,8 +47,25 @@ export class MessageService {
   }
 
   addMessage(message: Message) {
-    this.messages.push(message);
-    this.storeMessages();
+    if (!message) {
+      return;
+    }
+
+    // make sure id of the new Document is empty
+    message.id = '';
+
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    // add to database
+    this.http.post<{  message: Message }>('http://localhost:3000/messages',
+      message,
+      { headers: headers })
+      .subscribe(
+        (responseData) => {
+          this.messages.push(responseData.message);
+          // this.sortAndSend();
+        }
+      );
   }
 
   getMaxId(): number {
